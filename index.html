@@ -3,224 +3,437 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Мои тренировки</title>
+<title>My Workouts</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* ===== ЦВЕТА И БАЗА (из скриншота) ===== */
+  :root {
+    --blue: #136CFC;
+    --dark-blue: #152641;
+    --green: #C3F84A;
+    --light-blue: #E8F4FC;
+    --bg: #F5F7FA;
+    --text: #152641;
+    --text-muted: #7A8B9E;
+    --white: #FFFFFF;
+    --radius: 24px;
+    --shadow: 0 8px 24px rgba(21, 38, 65, 0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  
   body {
-    font-family: -apple-system, system-ui, sans-serif;
-    background: #f4f6fb; color: #1e2233;
-    padding: 20px; max-width: 820px; margin: 0 auto;
-  }
-  h1 { font-size: 24px; margin-bottom: 4px; }
-  .sub { color: #7a8199; font-size: 14px; margin-bottom: 20px; }
-
-  .card {
-    background: #fff; border-radius: 16px; padding: 20px;
-    margin-bottom: 16px; box-shadow: 0 2px 12px rgba(30,34,51,.06);
+    background-color: var(--bg);
+    color: var(--text);
+    padding: 24px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* вкладки-тренировки */
-  .workout-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  .tab {
-    padding: 8px 14px; border-radius: 20px; border: 1px solid #dfe3ee;
-    background: #fff; cursor: pointer; font-size: 14px; transition: .15s;
-    display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2;
+  /* ===== ХЕДЕР ===== */
+  .header { margin-bottom: 24px; }
+  .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .header p { color: var(--text-muted); font-size: 15px; margin-top: 4px; }
+
+  /* ===== СЕТКА ТРЕНИРОВОК (Главный экран) ===== */
+  .workouts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
   }
-  .tab.active { background: #4a6cf7; color: #fff; border-color: #4a6cf7; }
-  .tab .code { font-size: 10px; opacity: .7; font-family: monospace; margin-top: 2px; }
-
-  .exercise {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 0; border-bottom: 1px solid #eef0f7; cursor: pointer;
+  .workout-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px;
+    position: relative;
+    overflow: hidden;
   }
-  .exercise:last-child { border-bottom: none; }
-  .exercise input { width: 20px; height: 20px; accent-color: #4a6cf7; cursor: pointer; margin-top: 2px; flex-shrink: 0; }
-  .exercise .txt { flex: 1; font-size: 15px; }
-  .exercise .note { font-size: 12px; color: #9aa1b8; margin-top: 2px; }
-  .exercise.done .txt { text-decoration: line-through; color: #a0a6ba; }
-  .exercise.done .note { color: #c9d0e6; }
-
-  .progress { font-size: 13px; color: #7a8199; margin: 10px 0; }
-
-  button.finish {
-    width: 100%; padding: 14px; border: none; border-radius: 12px;
-    background: #4a6cf7; color: #fff; font-size: 16px; font-weight: 600;
-    cursor: pointer; transition: .15s;
+  .workout-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(21, 38, 65, 0.1); }
+  .workout-card .badge {
+    background: var(--light-blue);
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    width: fit-content;
+    margin-bottom: 12px;
   }
-  button.finish:hover:not(:disabled) { background: #3b58d6; }
-  button.finish:disabled { background: #c9d0e6; cursor: not-allowed; }
-
-  .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn-light {
-    padding: 10px 14px; border-radius: 10px; border: 1px solid #dfe3ee;
-    background: #fff; cursor: pointer; font-size: 14px;
+  .workout-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .workout-card p { font-size: 13px; color: var(--text-muted); }
+  .workout-card .status {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
   }
-  .btn-light:hover { background: #f4f6fb; }
+  .status.done { color: #059669; }
+  .status.done .dot { background: #059669; }
+  .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
 
-  /* календарь */
-  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .cal-header button { background: none; border: none; font-size: 20px; cursor: pointer; color: #4a6cf7; }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-  .cal-grid .dow { text-align: center; font-size: 12px; color: #9aa1b8; padding: 4px; }
+  /* ===== ЭКРАН ТРЕНИРОВКИ ===== */
+  #workoutScreen { display: none; }
+  .back-btn {
+    background: var(--white);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    margin-bottom: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .workout-title-big { font-size: 26px; font-weight: 800; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+
+  /* ===== УПРАЖНЕНИЯ ===== */
+  .exercise-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .ex-header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .ex-title { font-size: 16px; font-weight: 700; }
+  .ex-note { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  
+  /* Кружочки подходов */
+  .sets-container { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .set-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #E2E8F0;
+    background: var(--white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .set-circle:hover { border-color: var(--blue); color: var(--blue); }
+  .set-circle.active {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--dark-blue);
+    transform: scale(1.05);
+  }
+
+  /* ===== КНОПКА ЗАВЕРШЕНИЯ ===== */
+  .finish-btn {
+    width: 100%;
+    padding: 20px;
+    border-radius: 20px;
+    border: none;
+    background: var(--blue);
+    color: var(--white);
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background 0.2s;
+    box-shadow: 0 8px 20px rgba(19, 108, 252, 0.3);
+  }
+  .finish-btn:hover { background: #0d58d4; }
+  .finish-btn:disabled { background: #C9D2DF; box-shadow: none; cursor: not-allowed; }
+
+  /* ===== КАЛЕНДАРЬ ===== */
+  .calendar-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-top: 32px;
+  }
+  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .cal-header h3 { font-size: 18px; font-weight: 700; }
+  .cal-header button { background: var(--light-blue); border: none; width: 36px; height: 36px; border-radius: 12px; cursor: pointer; font-size: 18px; color: var(--blue); font-weight: bold;}
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal-grid .dow { text-align: center; font-size: 12px; color: var(--text-muted); font-weight: 600; padding: 4px; }
   .day {
-    min-height: 74px; border-radius: 8px; font-size: 13px;
-    padding: 4px; position: relative; border: 1px solid #eef0f7;
-    display: flex; flex-direction: column; gap: 3px;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--bg);
+    color: var(--text-muted);
   }
-  .day.empty { visibility: hidden; }
-  .day.today { outline: 2px solid #ffb020; outline-offset: -2px; }
-  .day .num { font-size: 11px; color: #9aa1b8; }
+  .day.empty { background: transparent; }
+  .day.today { border: 2px solid var(--blue); background: var(--white); color: var(--blue); }
+  .day.done { background: var(--green); color: var(--dark-blue); font-weight: 800; }
 
-  .badge {
-    font-size: 10px; padding: 2px 5px; border-radius: 5px;
-    background: #4a6cf7; color: #fff; font-family: monospace;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-
+  /* Тост */
   .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: #1e2233; color: #fff; padding: 12px 20px; border-radius: 10px;
-    font-size: 14px; opacity: 0; transition: .3s; pointer-events: none;
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--dark-blue); color: var(--white); padding: 16px 24px; border-radius: 16px;
+    font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 100;
   }
-  .toast.show { opacity: 1; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
 </style>
 </head>
 <body>
 
-<h1>💪 Мои тренировки</h1>
-<p class="sub">Рекомпозиция + подтягивания · 4 дня</p>
-
-<div class="card">
-  <div class="workout-tabs" id="tabs"></div>
-  <div id="exercises"></div>
-  <div class="progress" id="progress"></div>
-  <button class="finish" id="finishBtn">🏁 Закончить тренировку</button>
-</div>
-
-<div class="card">
-  <div class="cal-header">
-    <button id="prev">‹</button>
-    <strong id="calTitle"></strong>
-    <button id="next">›</button>
+<!-- ГЛАВНЫЙ ЭКРАН -->
+<div id="homeScreen">
+  <div class="header">
+    <h1>Мои тренировки</h1>
+    <p>Рекомпозиция + подтягивания</p>
   </div>
-  <div class="cal-grid" id="calGrid"></div>
+  
+  <div class="workouts-grid" id="workoutsGrid">
+    <!-- Карточки тренировок генерируются JS -->
+  </div>
+
+  <!-- КАЛЕНДАРЬ (виден всегда внизу) -->
+  <div class="calendar-card">
+    <div class="cal-header">
+      <button id="prevMonth">‹</button>
+      <h3 id="calTitle"></h3>
+      <button id="nextMonth">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- ЭКРАН ТРЕНИРОВКИ -->
+<div id="workoutScreen">
+  <button class="back-btn" id="backBtn">← Назад</button>
+  <div class="workout-title-big" id="workoutTitleBig"></div>
+  
+  <div id="exercisesContainer">
+    <!-- Упражнения генерируются JS -->
+  </div>
+
+  <button class="finish-btn" id="finishBtn">🏁 Завершить тренировку</button>
+</div>
+
+<div class="toast" id="toast">Тренировка сохранена!</div>
 
 <script>
-// ===== ТВОЙ ПЛАН =====
+// ===== ДАННЫЕ ТРЕНИРОВОК =====
 const WORKOUTS = {
   "UP-1": {
-    name: "Верх · сила",
+    name: "День 1 · Верх (Сила)",
     exercises: [
-      { txt: "Подтягивания (прогрессия)", note: "4 подхода · текущий этап" },
-      { txt: "Жим гантелей лёжа", note: "4 × 6–10 · локти ~45°" },
-      { txt: "Тяга верхнего блока широким хватом", note: "3 × 8–12 · к груди" },
-      { txt: "Жим гантелей сидя", note: "3 × 8–12 · спина прижата" },
-      { txt: "Тяга гантели в наклоне", note: "3 × 8–12 · к бедру" },
-      { txt: "Разведения гантелей в стороны", note: "3 × 12–15 · до уровня плеч" },
-      { txt: "Бицепс + трицепс (суперсет)", note: "3 × 10–15 · минимум отдыха" }
+      { name: "Подтягивания (прогрессия)", note: "4 подхода", sets: 4 },
+      { name: "Жим гантелей лёжа", note: "4 × 6–10", sets: 4 },
+      { name: "Тяга верхнего блока широким хватом", note: "3 × 8–12", sets: 3 },
+      { name: "Жим гантелей сидя", note: "3 × 8–12", sets: 3 },
+      { name: "Тяга гантели в наклоне", note: "3 × 8–12", sets: 3 },
+      { name: "Разведения гантелей в стороны", note: "3 × 12–15", sets: 3 },
+      { name: "Бицепс + трицепс (суперсет)", note: "3 × 10–15", sets: 3 }
     ]
   },
   "LOW-1": {
-    name: "Низ · ягодицы",
+    name: "День 2 · Низ (Ягодицы)",
     exercises: [
-      { txt: "Приседания со штангой / гоблет", note: "4 × 6–10 · колени наружу" },
-      { txt: "Румынская тяга", note: "4 × 8–12 · таз назад" },
-      { txt: "Хип-траст / ягодичный мост", note: "4 × 8–12 · пауза 1 сек" },
-      { txt: "Болгарские выпады / выпады назад", note: "3 × 10–12 на ногу" },
-      { txt: "Разгибания ног или сведение", note: "3 × 12–15" },
-      { txt: "Подъёмы на носки стоя", note: "3 × 12–15 · пауза вверху" }
+      { name: "Приседания со штангой / гоблет", note: "4 × 6–10", sets: 4 },
+      { name: "Румынская тяга", note: "4 × 8–12", sets: 4 },
+      { name: "Хип-траст / ягодичный мост", note: "4 × 8–12", sets: 4 },
+      { name: "Болгарские выпады", note: "3 × 10–12", sets: 3 },
+      { name: "Разгибания ног", note: "3 × 12–15", sets: 3 },
+      { name: "Подъёмы на носки стоя", note: "3 × 12–15", sets: 3 }
     ]
   },
   "UP-2": {
-    name: "Верх · объём",
+    name: "День 3 · Верх (Объём)",
     exercises: [
-      { txt: "Подтягивания (прогрессия)", note: "4 подхода · тот же этап" },
-      { txt: "Жим гантелей на наклонной", note: "4 × 8–12 · угол 30–45°" },
-      { txt: "Горизонтальная тяга / Т-гриф", note: "4 × 8–12 · к животу" },
-      { txt: "Жим гантелей сидя (нейтральный)", note: "3 × 10–12 · ладони внутрь" },
-      { txt: "Разведения на задние дельты + пулловер", note: "3 × 12–15 · суперсет" },
-      { txt: "Французский жим + молотки", note: "3 × 10–15 · суперсет" }
+      { name: "Подтягивания (прогрессия)", note: "4 подхода", sets: 4 },
+      { name: "Жим гантелей на наклонной", note: "4 × 8–12", sets: 4 },
+      { name: "Горизонтальная тяга", note: "4 × 8–12", sets: 4 },
+      { name: "Жим гантелей сидя (нейтральный)", note: "3 × 10–12", sets: 3 },
+      { name: "Разведения на задние дельты + пулловер", note: "3 × 12–15", sets: 3 },
+      { name: "Французский жим + молотки", note: "3 × 10–15", sets: 3 }
     ]
   },
   "LOW-2": {
-    name: "Низ · задняя",
+    name: "День 4 · Низ (Задняя)",
     exercises: [
-      { txt: "Фронтальные / гоблет-приседания", note: "3–4 × 8–12 · корпус вертикально" },
-      { txt: "Румынская тяга / становая на прямых", note: "4 × 8–12" },
-      { txt: "Хип-траст с паузой", note: "4 × 10–15 · 1–2 сек вверху" },
-      { txt: "Зашагивания / выпады вперёд", note: "3 × 10–12 на ногу" },
-      { txt: "Сгибания ног / good mornings", note: "3 × 10–15" },
-      { txt: "Подъёмы на носки сидя", note: "3 × 12–15 · камбаловидная" }
+      { name: "Фронтальные приседания", note: "3–4 × 8–12", sets: 4 },
+      { name: "Румынская тяга / становая", note: "4 × 8–12", sets: 4 },
+      { name: "Хип-траст с паузой", note: "4 × 10–15", sets: 4 },
+      { name: "Зашагивания на тумбу", note: "3 × 10–12", sets: 3 },
+      { name: "Сгибания ног / good mornings", note: "3 × 10–15", sets: 3 },
+      { name: "Подъёмы на носки сидя", note: "3 × 12–15", sets: 3 }
     ]
   }
 };
 
 // ===== СОСТОЯНИЕ =====
-let current = "UP-1";
-let checked = load("checked", {});
-let finishedDays = load("finishedDays", []); // [{date:"YYYY-MM-DD", code:"UP-1"}]
+let currentWorkout = null;
+let progress = load("progress_v2", {}); // { "UP-1": [ [true, false...] (упражнение 1), [...] (упр 2) ] }
+let history = load("history_v2", []);   // [ { date: "YYYY-MM-DD", code: "UP-1" } ]
 
-function load(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
+function load(k, def) { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } }
 function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 
-// ===== ВКЛАДКИ =====
-const tabsEl = document.getElementById("tabs");
-Object.entries(WORKOUTS).forEach(([code, w]) => {
-  const b = document.createElement("button");
-  b.className = "tab" + (code === current ? " active" : "");
-  b.innerHTML = `${w.name}<span class="code">${code}</span>`;
-  b.onclick = () => { current = code; renderAll(); };
-  tabsEl.appendChild(b);
-});
-
-// ===== УПРАЖНЕНИЯ =====
-const exEl = document.getElementById("exercises");
-const progEl = document.getElementById("progress");
-const finishBtn = document.getElementById("finishBtn");
-
-function renderExercises() {
-  const w = WORKOUTS[current];
-  const state = checked[current] || w.exercises.map(() => false);
-  checked[current] = state;
-
-  exEl.innerHTML = "";
-  w.exercises.forEach((ex, i) => {
-    const row = document.createElement("label");
-    row.className = "exercise" + (state[i] ? " done" : "");
-    row.innerHTML = `
-      <input type="checkbox" ${state[i] ? "checked" : ""}>
-      <div class="txt">${ex.txt}<div class="note">${ex.note}</div></div>
-    `;
-    row.querySelector("input").onchange = (e) => {
-      state[i] = e.target.checked;
-      save("checked", checked);
-      renderExercises();
-    };
-    exEl.appendChild(row);
-  });
-
-  const done = state.filter(Boolean).length;
-  progEl.textContent = `Сделано ${done} из ${w.exercises.length}`;
-  finishBtn.disabled = done === 0;
-  finishBtn.textContent = done === w.exercises.length
-    ? "🏁 Закончить тренировку"
-    : `🏁 Закончить (${done}/${w.exercises.length})`;
+// Инициализация прогресса для тренировки, если его нет
+function initProgress(code) {
+  if (!progress[code]) {
+    progress[code] = WORKOUTS[code].exercises.map(ex => new Array(ex.sets).fill(false));
+  }
 }
 
-// ===== ЗАВЕРШЕНИЕ =====
-finishBtn.onclick = () => {
-  const today = new Date().toISOString().slice(0, 10);
-  if (!finishedDays.some(f => f.date === today && f.code === current)) {
-    finishedDays.push({ date: today, code: current });
-    save("finishedDays", finishedDays);
+// ===== РЕНДЕР ГЛАВНОГО ЭКРАНА =====
+function renderHome() {
+  const grid = document.getElementById("workoutsGrid");
+  grid.innerHTML = "";
+  
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const doneToday = history.filter(h => h.date === todayStr).map(h => h.code);
+
+  Object.entries(WORKOUTS).forEach(([code, w]) => {
+    const card = document.createElement("div");
+    card.className = "workout-card";
+    
+    const isDone = doneToday.includes(code);
+    
+    card.innerHTML = `
+      <div>
+        <div class="badge">${code}</div>
+        <h3>${w.name}</h3>
+        <p>${w.exercises.length} упражнений</p>
+      </div>
+      <div class="status ${isDone ? 'done' : ''}">
+        <div class="dot"></div>
+        ${isDone ? 'Выполнено сегодня' : 'Не начато'}
+      </div>
+    `;
+    
+    card.onclick = () => openWorkout(code);
+    grid.appendChild(card);
+  });
+}
+
+// ===== ОТКРЫТИЕ ТРЕНИРОВКИ =====
+function openWorkout(code) {
+  currentWorkout = code;
+  initProgress(code);
+  
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("workoutScreen").style.display = "block";
+  document.getElementById("workoutTitleBig").textContent = WORKOUTS[code].name;
+  
+  renderExercises();
+  window.scrollTo(0, 0);
+}
+
+// ===== РЕНДЕР УПРАЖНЕНИЙ =====
+function renderExercises() {
+  const container = document.getElementById("exercisesContainer");
+  container.innerHTML = "";
+  
+  const workout = WORKOUTS[currentWorkout];
+  const states = progress[currentWorkout];
+  
+  let totalSets = 0;
+  let doneSets = 0;
+
+  workout.exercises.forEach((ex, exIndex) => {
+    const exCard = document.createElement("div");
+    exCard.className = "exercise-card";
+    
+    // Заголовок упражнения
+    const header = document.createElement("div");
+    header.className = "ex-header";
+    header.innerHTML = `
+      <div>
+        <div class="ex-title">${exIndex + 1}. ${ex.name}</div>
+        <div class="ex-note">${ex.note}</div>
+      </div>
+    `;
+    exCard.appendChild(header);
+
+    // Контейнер для подходов
+    const setsContainer = document.createElement("div");
+    setsContainer.className = "sets-container";
+    
+    for (let i = 0; i < ex.sets; i++) {
+      const isDone = states[exIndex][i];
+      totalSets++;
+      if (isDone) doneSets++;
+
+      const circle = document.createElement("div");
+      circle.className = "set-circle" + (isDone ? " active" : "");
+      circle.textContent = i + 1;
+      
+      circle.onclick = () => {
+        states[exIndex][i] = !states[exIndex][i];
+        save("progress_v2", progress);
+        renderExercises(); // Перерисовываем, чтобы обновить статистику
+      };
+      
+      setsContainer.appendChild(circle);
+    }
+    exCard.appendChild(setsContainer);
+    container.appendChild(exCard);
+  });
+
+  // Обновляем кнопку
+  const finishBtn = document.getElementById("finishBtn");
+  finishBtn.textContent = `🏁 Завершить тренировку (${doneSets}/${totalSets} подходов)`;
+  
+  // Разрешаем завершить, если сделан хотя бы 1 подход
+  finishBtn.disabled = doneSets === 0;
+}
+
+// ===== ЗАВЕРШЕНИЕ ТРЕНИРОВКИ =====
+document.getElementById("finishBtn").onclick = () => {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  
+  // Записываем в историю, если еще не записано сегодня
+  if (!history.some(h => h.date === todayStr && h.code === currentWorkout)) {
+    history.push({ date: todayStr, code: currentWorkout });
+    save("history_v2", history);
   }
-  checked[current] = WORKOUTS[current].exercises.map(() => false);
-  save("checked", checked);
-  showToast(`${current} закрыта 💪`);
-  renderAll();
+  
+  // Сбрасываем прогресс
+  progress[currentWorkout] = WORKOUTS[currentWorkout].exercises.map(ex => new Array(ex.sets).fill(false));
+  save("progress_v2", progress);
+  
+  showToast("Тренировка успешно завершена! 💪");
+  
+  // Возвращаемся на главный экран
+  document.getElementById("workoutScreen").style.display = "none";
+  document.getElementById("homeScreen").style.display = "block";
+  renderHome();
+  renderCalendar();
+  window.scrollTo(0, 0);
+};
+
+document.getElementById("backBtn").onclick = () => {
+  document.getElementById("workoutScreen").style.display = "none";
+  document.getElementById("homeScreen").style.display = "block";
+  renderHome();
+  window.scrollTo(0, 0);
 };
 
 // ===== КАЛЕНДАРЬ =====
@@ -234,6 +447,7 @@ function renderCalendar() {
 
   const grid = document.getElementById("calGrid");
   grid.innerHTML = "";
+  
   DOW.forEach(d => {
     const el = document.createElement("div");
     el.className = "dow"; el.textContent = d;
@@ -255,42 +469,31 @@ function renderCalendar() {
     const dateStr = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
     const el = document.createElement("div");
     el.className = "day";
+    
     if (dateStr === todayStr) el.classList.add("today");
+    
+    // Если в этот день была тренировка — красим
+    const hasWorkout = history.some(h => h.date === dateStr);
+    if (hasWorkout) el.classList.add("done");
 
-    const num = document.createElement("div");
-    num.className = "num"; num.textContent = d;
-    el.appendChild(num);
-
-    const todays = finishedDays.filter(f => f.date === dateStr);
-    todays.forEach(f => {
-      const b = document.createElement("div");
-      b.className = "badge"; b.textContent = f.code;
-      el.appendChild(b);
-    });
-
+    el.textContent = d;
     grid.appendChild(el);
   }
 }
 
-document.getElementById("prev").onclick = () => { calDate.setMonth(calDate.getMonth() - 1); renderCalendar(); };
-document.getElementById("next").onclick = () => { calDate.setMonth(calDate.getMonth() + 1); renderCalendar(); };
+document.getElementById("prevMonth").onclick = () => { calDate.setMonth(calDate.getMonth() - 1); renderCalendar(); };
+document.getElementById("nextMonth").onclick = () => { calDate.setMonth(calDate.getMonth() + 1); renderCalendar(); };
 
 // ===== ТОСТ =====
 function showToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg; t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2200);
+  setTimeout(() => t.classList.remove("show"), 3000);
 }
 
-// ===== ОБЩИЙ РЕНДЕР =====
-function renderAll() {
-  document.querySelectorAll(".tab").forEach((b, i) => {
-    b.classList.toggle("active", Object.keys(WORKOUTS)[i] === current);
-  });
-  renderExercises();
-  renderCalendar();
-}
-renderAll();
+// ===== ЗАПУСК =====
+renderHome();
+renderCalendar();
 </script>
 </body>
 </html>
