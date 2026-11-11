@@ -5,46 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Workouts</title>
 <style>
-  /* ===== ЦВЕТА И БАЗА (из скриншота) ===== */
+  /* ===== ЦВЕТА И БАЗА ===== */
   :root {
-    --blue: #136CFC;
-    --dark-blue: #152641;
-    --green: #C3F84A;
-    --light-blue: #E8F4FC;
-    --bg: #F5F7FA;
-    --text: #152641;
-    --text-muted: #7A8B9E;
-    --white: #FFFFFF;
-    --radius: 24px;
-    --shadow: 0 8px 24px rgba(21, 38, 65, 0.06);
+    --bg-color: #F4F6F8;         /* Светло-серый фон страницы */
+    --card-bg: #FFFFFF;          /* Белый для карточек */
+    --lime: #C3F84A;             /* Лаймовый акцент (как на референсе) */
+    --dark: #111315;             /* Почти черный для контраста */
+    --text-main: #111315;        /* Основной текст */
+    --text-muted: #88909D;       /* Серый текст */
+    --border-color: #EAECEF;     /* Легкие рамки */
+    --radius-xl: 32px;           /* Огромные скругления как на референсе */
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 12px;
+    
+    /* Тени */
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+    --shadow-hover: 0 15px 50px rgba(0, 0, 0, 0.06);
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
   
   body {
-    background-color: var(--bg);
-    color: var(--text);
-    padding: 24px 20px;
-    max-width: 900px;
-    margin: 0 auto;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ===== ХЕДЕР ===== */
-  .header { margin-bottom: 24px; }
-  .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-  .header p { color: var(--text-muted); font-size: 15px; margin-top: 4px; }
+  /* ===== СЕТКА ИНТЕРФЕЙСА ===== */
+  .app-container {
+    display: grid;
+    grid-template-columns: 240px 1fr 300px;
+    gap: 20px;
+    width: 100%;
+    max-width: 1400px;
+    height: calc(100vh - 40px);
+  }
 
-  /* ===== СЕТКА ТРЕНИРОВОК (Главный экран) ===== */
+  /* ===== БОКОВАЯ ПАНЕЛЬ ===== */
+  .sidebar {
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    padding: 30px 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    padding-left: 10px;
+  }
+  .logo-icon {
+    width: 24px; height: 24px; background: var(--dark); border-radius: 6px;
+    position: relative;
+  }
+  .logo-icon::after {
+    content: ''; position: absolute; top: 6px; left: 6px; width: 12px; height: 3px; background: var(--lime); border-radius: 2px;
+  }
+  
+  .nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px; border-radius: 100px;
+    color: var(--text-muted); font-weight: 600; font-size: 15px;
+    text-decoration: none; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-item:hover { color: var(--text-main); background: #F8F9FA; }
+  .nav-item.active { background: var(--dark); color: white; }
+
+  /* ===== ЦЕНТРАЛЬНАЯ ЧАСТЬ (ТРЕНИРОВКИ) ===== */
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    padding-right: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+  }
+
+  .header-area { margin-bottom: 10px; }
+  .header-area h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .header-area p { color: var(--text-muted); font-size: 15px; }
+
+  /* Карточки тренировок */
   .workouts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
   }
+  
   .workout-card {
-    background: var(--white);
-    border-radius: var(--radius);
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
     padding: 24px;
     box-shadow: var(--shadow);
     cursor: pointer;
@@ -52,148 +114,124 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 160px;
-    position: relative;
-    overflow: hidden;
+    min-height: 180px;
+    border: 1px solid transparent;
   }
-  .workout-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(21, 38, 65, 0.1); }
-  .workout-card .badge {
-    background: var(--light-blue);
-    color: var(--blue);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 12px;
-    width: fit-content;
-    margin-bottom: 12px;
-  }
-  .workout-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .workout-card p { font-size: 13px; color: var(--text-muted); }
-  .workout-card .status {
-    margin-top: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-  .status.done { color: #059669; }
-  .status.done .dot { background: #059669; }
-  .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
-
-  /* ===== ЭКРАН ТРЕНИРОВКИ ===== */
-  #workoutScreen { display: none; }
-  .back-btn {
-    background: var(--white);
-    border: none;
-    padding: 12px 20px;
-    border-radius: 16px;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    margin-bottom: 24px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .workout-title-big { font-size: 26px; font-weight: 800; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
-
-  /* ===== УПРАЖНЕНИЯ ===== */
-  .exercise-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow);
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .ex-header { display: flex; justify-content: space-between; align-items: flex-start; }
-  .ex-title { font-size: 16px; font-weight: 700; }
-  .ex-note { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .workout-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--border-color); }
   
-  /* Кружочки подходов */
-  .sets-container { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .set-circle {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 2px solid #E2E8F0;
-    background: var(--white);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    user-select: none;
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+  .badge {
+    background: var(--bg-color); color: var(--text-main);
+    font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 100px;
   }
-  .set-circle:hover { border-color: var(--blue); color: var(--blue); }
-  .set-circle.active {
-    background: var(--green);
-    border-color: var(--green);
-    color: var(--dark-blue);
-    transform: scale(1.05);
+  .arrow-icon {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--bg-color);
+    display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold;
   }
+  
+  .workout-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+  .workout-card p { font-size: 14px; color: var(--text-muted); }
+  
+  .status-pill {
+    margin-top: 20px;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 100px;
+    background: var(--bg-color); width: fit-content;
+  }
+  .status-pill.done { background: var(--lime); color: var(--dark); }
+  .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-  /* ===== КНОПКА ЗАВЕРШЕНИЯ ===== */
+  /* ===== ЭКРАН С УПРАЖНЕНИЯМИ (внутри карточки) ===== */
+  #workoutDetails { display: none; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .back-btn {
+    background: var(--card-bg); border: none; padding: 12px 24px; border-radius: 100px;
+    font-size: 15px; font-weight: 600; color: var(--text-main); box-shadow: var(--shadow);
+    cursor: pointer; margin-bottom: 24px; display: inline-flex; align-items: center; gap: 8px;
+  }
+  
+  .details-title { font-size: 28px; font-weight: 800; margin-bottom: 24px; }
+
+  .exercise-block {
+    background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px;
+    margin-bottom: 16px; box-shadow: var(--shadow);
+  }
+  .ex-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .ex-name { font-size: 18px; font-weight: 700; }
+  .ex-note { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+  
+  .sets-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .set-btn {
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 2px solid var(--border-color); background: var(--card-bg);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 16px; font-weight: 700; color: var(--text-muted);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .set-btn:hover { border-color: var(--text-main); color: var(--text-main); }
+  .set-btn.active { background: var(--lime); border-color: var(--lime); color: var(--dark); transform: scale(1.05); }
+
   .finish-btn {
-    width: 100%;
-    padding: 20px;
-    border-radius: 20px;
-    border: none;
-    background: var(--blue);
-    color: var(--white);
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 12px;
-    transition: background 0.2s;
-    box-shadow: 0 8px 20px rgba(19, 108, 252, 0.3);
+    width: 100%; padding: 20px; border-radius: 100px; border: none;
+    background: var(--dark); color: white; font-size: 18px; font-weight: 700;
+    cursor: pointer; margin-top: 10px; transition: background 0.2s;
   }
-  .finish-btn:hover { background: #0d58d4; }
-  .finish-btn:disabled { background: #C9D2DF; box-shadow: none; cursor: not-allowed; }
+  .finish-btn:hover { background: #000; }
+  .finish-btn:disabled { background: #E0E0E0; color: #999; cursor: not-allowed; }
 
-  /* ===== КАЛЕНДАРЬ ===== */
-  .calendar-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 24px;
+  /* ===== ПРАВАЯ КОЛОНКА (КАЛЕНДАРЬ) ===== */
+  .right-panel {
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    padding: 30px 20px;
     box-shadow: var(--shadow);
-    margin-top: 32px;
-  }
-  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .cal-header h3 { font-size: 18px; font-weight: 700; }
-  .cal-header button { background: var(--light-blue); border: none; width: 36px; height: 36px; border-radius: 12px; cursor: pointer; font-size: 18px; color: var(--blue); font-weight: bold;}
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-  .cal-grid .dow { text-align: center; font-size: 12px; color: var(--text-muted); font-weight: 600; padding: 4px; }
-  .day {
-    aspect-ratio: 1;
-    border-radius: 12px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-    background: var(--bg);
-    color: var(--text-muted);
   }
-  .day.empty { background: transparent; }
-  .day.today { border: 2px solid var(--blue); background: var(--white); color: var(--blue); }
-  .day.done { background: var(--green); color: var(--dark-blue); font-weight: 800; }
 
-  /* Тост */
+  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .cal-header h3 { font-size: 18px; font-weight: 800; text-transform: capitalize; }
+  .cal-nav-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border-color);
+    background: var(--card-bg); cursor: pointer; font-size: 18px; color: var(--text-main);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cal-nav-btn:hover { background: var(--bg-color); }
+
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+  .dow { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
+  .day {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; font-size: 14px; font-weight: 600; color: var(--text-main);
+    cursor: default; transition: 0.2s;
+  }
+  .day.empty { visibility: hidden; }
+  .day.today { border: 2px solid var(--dark); }
+  .day.done { background: var(--lime); color: var(--dark); }
+  
+  .history-card {
+    margin-top: auto; background: var(--dark); border-radius: var(--radius-lg); padding: 24px;
+    color: white; text-align: center;
+  }
+  .history-card h4 { font-size: 14px; color: #88909D; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .history-card .number { font-size: 32px; font-weight: 800; color: var(--lime); }
+
+  /* ===== АДАПТИВНОСТЬ (Мобильные) ===== */
+  @media (max-width: 1024px) {
+    .app-container { grid-template-columns: 1fr; height: auto; }
+    .sidebar { display: none; /* Скрываем меню на телефоне для экономии места */ }
+    .right-panel { order: 2; } /* Календарь уходит вниз */
+    .main-content { order: 1; padding-right: 0; }
+    .workouts-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Уведомление */
   .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
-    background: var(--dark-blue); color: var(--white); padding: 16px 24px; border-radius: 16px;
-    font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    z-index: 100;
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--dark); color: white; padding: 16px 32px; border-radius: 100px;
+    font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; 
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000;
   }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
@@ -201,38 +239,70 @@
 </head>
 <body>
 
-<!-- ГЛАВНЫЙ ЭКРАН -->
-<div id="homeScreen">
-  <div class="header">
-    <h1>Мои тренировки</h1>
-    <p>Рекомпозиция + подтягивания</p>
-  </div>
+<div class="app-container">
   
-  <div class="workouts-grid" id="workoutsGrid">
-    <!-- Карточки тренировок генерируются JS -->
-  </div>
+  <!-- 1. БОКОВАЯ ПАНЕЛЬ -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon"></div>
+      FitLab
+    </div>
+    <nav class="nav-menu">
+      <a href="#" class="nav-item active">
+        <span>🏠</span> Главная
+      </a>
+      <a href="#" class="nav-item" onclick="alert('История тренировок будет здесь!')">
+        <span>📊</span> Статистика
+      </a>
+      <a href="#" class="nav-item" onclick="alert('Настройки профиля')">
+        <span>⚙️</span> Настройки
+      </a>
+    </nav>
+  </aside>
 
-  <!-- КАЛЕНДАРЬ (виден всегда внизу) -->
-  <div class="calendar-card">
+  <!-- 2. ЦЕНТРАЛЬНАЯ ЧАСТЬ -->
+  <main class="main-content">
+    
+    <!-- Экран списка тренировок -->
+    <div id="homeScreen">
+      <div class="header-area">
+        <h1>Твои тренировки</h1>
+        <p>План: Рекомпозиция + подтягивания</p>
+      </div>
+      
+      <div class="workouts-grid" id="workoutsGrid">
+        <!-- Генерируется через JS -->
+      </div>
+    </div>
+
+    <!-- Экран выполнения тренировки -->
+    <div id="workoutDetails">
+      <button class="back-btn" id="backBtn">← Назад к списку</button>
+      <div class="details-title" id="detailsTitle"></div>
+      <div id="exercisesContainer">
+        <!-- Генерируется через JS -->
+      </div>
+      <button class="finish-btn" id="finishBtn">Завершить тренировку</button>
+    </div>
+
+  </main>
+
+  <!-- 3. ПРАВАЯ ПАНЕЛЬ (КАЛЕНДАРЬ) -->
+  <aside class="right-panel">
     <div class="cal-header">
-      <button id="prevMonth">‹</button>
+      <button class="cal-nav-btn" id="prevMonth">‹</button>
       <h3 id="calTitle"></h3>
-      <button id="nextMonth">›</button>
+      <button class="cal-nav-btn" id="nextMonth">›</button>
     </div>
     <div class="cal-grid" id="calGrid"></div>
-  </div>
-</div>
+    
+    <div class="history-card">
+      <h4>Всего закрыто</h4>
+      <div class="number" id="totalDone">0</div>
+      <div style="font-size: 13px; color: #88909D; margin-top: 4px;">тренировок</div>
+    </div>
+  </aside>
 
-<!-- ЭКРАН ТРЕНИРОВКИ -->
-<div id="workoutScreen">
-  <button class="back-btn" id="backBtn">← Назад</button>
-  <div class="workout-title-big" id="workoutTitleBig"></div>
-  
-  <div id="exercisesContainer">
-    <!-- Упражнения генерируются JS -->
-  </div>
-
-  <button class="finish-btn" id="finishBtn">🏁 Завершить тренировку</button>
 </div>
 
 <div class="toast" id="toast">Тренировка сохранена!</div>
@@ -241,7 +311,7 @@
 // ===== ДАННЫЕ ТРЕНИРОВОК =====
 const WORKOUTS = {
   "UP-1": {
-    name: "День 1 · Верх (Сила)",
+    name: "День 1. Верх (Сила)",
     exercises: [
       { name: "Подтягивания (прогрессия)", note: "4 подхода", sets: 4 },
       { name: "Жим гантелей лёжа", note: "4 × 6–10", sets: 4 },
@@ -253,7 +323,7 @@ const WORKOUTS = {
     ]
   },
   "LOW-1": {
-    name: "День 2 · Низ (Ягодицы)",
+    name: "День 2. Низ (Ягодицы)",
     exercises: [
       { name: "Приседания со штангой / гоблет", note: "4 × 6–10", sets: 4 },
       { name: "Румынская тяга", note: "4 × 8–12", sets: 4 },
@@ -264,7 +334,7 @@ const WORKOUTS = {
     ]
   },
   "UP-2": {
-    name: "День 3 · Верх (Объём)",
+    name: "День 3. Верх (Объём)",
     exercises: [
       { name: "Подтягивания (прогрессия)", note: "4 подхода", sets: 4 },
       { name: "Жим гантелей на наклонной", note: "4 × 8–12", sets: 4 },
@@ -275,7 +345,7 @@ const WORKOUTS = {
     ]
   },
   "LOW-2": {
-    name: "День 4 · Низ (Задняя)",
+    name: "День 4. Низ (Задняя)",
     exercises: [
       { name: "Фронтальные приседания", note: "3–4 × 8–12", sets: 4 },
       { name: "Румынская тяга / становая", note: "4 × 8–12", sets: 4 },
@@ -289,13 +359,12 @@ const WORKOUTS = {
 
 // ===== СОСТОЯНИЕ =====
 let currentWorkout = null;
-let progress = load("progress_v2", {}); // { "UP-1": [ [true, false...] (упражнение 1), [...] (упр 2) ] }
-let history = load("history_v2", []);   // [ { date: "YYYY-MM-DD", code: "UP-1" } ]
+let progress = load("progress_final", {}); 
+let history = load("history_final", []); // [ { date: "YYYY-MM-DD", code: "UP-1" } ]
 
 function load(k, def) { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } }
 function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 
-// Инициализация прогресса для тренировки, если его нет
 function initProgress(code) {
   if (!progress[code]) {
     progress[code] = WORKOUTS[code].exercises.map(ex => new Array(ex.sets).fill(false));
@@ -313,18 +382,20 @@ function renderHome() {
   Object.entries(WORKOUTS).forEach(([code, w]) => {
     const card = document.createElement("div");
     card.className = "workout-card";
-    
     const isDone = doneToday.includes(code);
     
     card.innerHTML = `
       <div>
-        <div class="badge">${code}</div>
+        <div class="card-top">
+          <div class="badge">${code}</div>
+          <div class="arrow-icon">↗</div>
+        </div>
         <h3>${w.name}</h3>
         <p>${w.exercises.length} упражнений</p>
       </div>
-      <div class="status ${isDone ? 'done' : ''}">
+      <div class="status-pill ${isDone ? 'done' : ''}">
         <div class="dot"></div>
-        ${isDone ? 'Выполнено сегодня' : 'Не начато'}
+        ${isDone ? 'Выполнено' : 'Не начато'}
       </div>
     `;
     
@@ -339,11 +410,11 @@ function openWorkout(code) {
   initProgress(code);
   
   document.getElementById("homeScreen").style.display = "none";
-  document.getElementById("workoutScreen").style.display = "block";
-  document.getElementById("workoutTitleBig").textContent = WORKOUTS[code].name;
+  document.getElementById("workoutDetails").style.display = "block";
+  document.getElementById("detailsTitle").textContent = WORKOUTS[code].name;
   
   renderExercises();
-  window.scrollTo(0, 0);
+  document.querySelector('.main-content').scrollTo(0,0);
 }
 
 // ===== РЕНДЕР УПРАЖНЕНИЙ =====
@@ -358,50 +429,43 @@ function renderExercises() {
   let doneSets = 0;
 
   workout.exercises.forEach((ex, exIndex) => {
-    const exCard = document.createElement("div");
-    exCard.className = "exercise-card";
+    const block = document.createElement("div");
+    block.className = "exercise-block";
     
-    // Заголовок упражнения
-    const header = document.createElement("div");
-    header.className = "ex-header";
-    header.innerHTML = `
-      <div>
-        <div class="ex-title">${exIndex + 1}. ${ex.name}</div>
-        <div class="ex-note">${ex.note}</div>
+    block.innerHTML = `
+      <div class="ex-header">
+        <div>
+          <div class="ex-name">${exIndex + 1}. ${ex.name}</div>
+          <div class="ex-note">${ex.note}</div>
+        </div>
       </div>
+      <div class="sets-row" id="sets-${exIndex}"></div>
     `;
-    exCard.appendChild(header);
-
-    // Контейнер для подходов
-    const setsContainer = document.createElement("div");
-    setsContainer.className = "sets-container";
+    
+    const setsRow = block.querySelector(`#sets-${exIndex}`);
     
     for (let i = 0; i < ex.sets; i++) {
       const isDone = states[exIndex][i];
       totalSets++;
       if (isDone) doneSets++;
 
-      const circle = document.createElement("div");
-      circle.className = "set-circle" + (isDone ? " active" : "");
-      circle.textContent = i + 1;
+      const btn = document.createElement("div");
+      btn.className = "set-btn" + (isDone ? " active" : "");
+      btn.textContent = i + 1;
       
-      circle.onclick = () => {
+      btn.onclick = () => {
         states[exIndex][i] = !states[exIndex][i];
-        save("progress_v2", progress);
-        renderExercises(); // Перерисовываем, чтобы обновить статистику
+        save("progress_final", progress);
+        renderExercises();
       };
       
-      setsContainer.appendChild(circle);
+      setsRow.appendChild(btn);
     }
-    exCard.appendChild(setsContainer);
-    container.appendChild(exCard);
+    container.appendChild(block);
   });
 
-  // Обновляем кнопку
   const finishBtn = document.getElementById("finishBtn");
-  finishBtn.textContent = `🏁 Завершить тренировку (${doneSets}/${totalSets} подходов)`;
-  
-  // Разрешаем завершить, если сделан хотя бы 1 подход
+  finishBtn.textContent = `Завершить (${doneSets} из ${totalSets})`;
   finishBtn.disabled = doneSets === 0;
 }
 
@@ -409,31 +473,26 @@ function renderExercises() {
 document.getElementById("finishBtn").onclick = () => {
   const todayStr = new Date().toISOString().slice(0, 10);
   
-  // Записываем в историю, если еще не записано сегодня
   if (!history.some(h => h.date === todayStr && h.code === currentWorkout)) {
     history.push({ date: todayStr, code: currentWorkout });
-    save("history_v2", history);
+    save("history_final", history);
   }
   
-  // Сбрасываем прогресс
   progress[currentWorkout] = WORKOUTS[currentWorkout].exercises.map(ex => new Array(ex.sets).fill(false));
-  save("progress_v2", progress);
+  save("progress_final", progress);
   
   showToast("Тренировка успешно завершена! 💪");
   
-  // Возвращаемся на главный экран
-  document.getElementById("workoutScreen").style.display = "none";
+  document.getElementById("workoutDetails").style.display = "none";
   document.getElementById("homeScreen").style.display = "block";
   renderHome();
   renderCalendar();
-  window.scrollTo(0, 0);
 };
 
 document.getElementById("backBtn").onclick = () => {
-  document.getElementById("workoutScreen").style.display = "none";
+  document.getElementById("workoutDetails").style.display = "none";
   document.getElementById("homeScreen").style.display = "block";
   renderHome();
-  window.scrollTo(0, 0);
 };
 
 // ===== КАЛЕНДАРЬ =====
@@ -442,12 +501,15 @@ const DOW = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
 function renderCalendar() {
   const y = calDate.getFullYear(), m = calDate.getMonth();
-  document.getElementById("calTitle").textContent =
-    calDate.toLocaleString("ru", { month: "long", year: "numeric" });
+  
+  // Название месяца
+  const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+  document.getElementById("calTitle").textContent = monthNames[m] + " " + y;
 
   const grid = document.getElementById("calGrid");
   grid.innerHTML = "";
   
+  // Дни недели
   DOW.forEach(d => {
     const el = document.createElement("div");
     el.className = "dow"; el.textContent = d;
@@ -455,16 +517,18 @@ function renderCalendar() {
   });
 
   const first = new Date(y, m, 1);
-  const startOffset = (first.getDay() + 6) % 7;
+  const startOffset = (first.getDay() + 6) % 7; // Пн = 0
   const daysInMonth = new Date(y, m + 1, 0).getDate();
   const todayStr = new Date().toISOString().slice(0, 10);
 
+  // Пустые ячейки
   for (let i = 0; i < startOffset; i++) {
     const el = document.createElement("div");
     el.className = "day empty";
     grid.appendChild(el);
   }
 
+  // Дни месяца
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
     const el = document.createElement("div");
@@ -472,13 +536,15 @@ function renderCalendar() {
     
     if (dateStr === todayStr) el.classList.add("today");
     
-    // Если в этот день была тренировка — красим
     const hasWorkout = history.some(h => h.date === dateStr);
     if (hasWorkout) el.classList.add("done");
 
     el.textContent = d;
     grid.appendChild(el);
   }
+  
+  // Обновляем счетчик
+  document.getElementById("totalDone").textContent = history.length;
 }
 
 document.getElementById("prevMonth").onclick = () => { calDate.setMonth(calDate.getMonth() - 1); renderCalendar(); };
